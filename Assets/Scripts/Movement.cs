@@ -49,6 +49,7 @@ public class Movement : MonoBehaviour
     void OnDisable()
     {
         actions.Movement.Disable();
+        body.velocity = Vector2.zero;
     }
 
     void FixedUpdate()
