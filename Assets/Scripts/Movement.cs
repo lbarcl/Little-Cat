@@ -1,18 +1,75 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Movement : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [Tooltip("The height that object will reach. Its used to callculate the force.")]
+    [SerializeField] private float jumpHeight;
+    [SerializeField] private float speed;
+    private float jumpForce;
+    private bool isGrounded;
+    private bool isJumped;
+
+    PlayerAction actions;
+    Rigidbody2D body;
+    Vector3 subPos;
+
+    void Awake()
     {
-        
+        actions = new PlayerAction();
+        body = GetComponent<Rigidbody2D>();
+
+        actions.Movement.Jump.performed += Jump;
+        subPos = new Vector3(0, transform.localScale.y, 0);
+
+        float velocity = Mathf.Sqrt(jumpHeight * 2 * (Mathf.Abs(Physics2D.gravity.magnitude) * body.gravityScale));
+        jumpForce = body.mass * velocity;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Jump(InputAction.CallbackContext context)
     {
-        
+        if (isGrounded && !isJumped)
+        {
+            body.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse); // Magic number
+            isJumped = true;
+        }
+    }
+
+    void OnEnable()
+    {
+        actions.Movement.Enable();
+    }
+
+    void OnDisable()
+    {
+        actions.Movement.Disable();
+    }
+
+    void FixedUpdate()
+    {
+        float horizontal = actions.Movement.Horizontal.ReadValue<float>();
+
+        if (horizontal < 0 && transform.localScale.x != -1)
+            transform.localScale = new Vector2(-1, 1);
+        else if (horizontal > 0)
+            transform.localScale = Vector2.one;
+
+        if (isGrounded)
+        {
+            Vector2 velocity = body.velocity;
+            velocity.x = horizontal * speed;
+            body.velocity = velocity;
+        }
+    }
+
+    void LateUpdate()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position - subPos, transform.up * -1, .05f);
+        isGrounded = hit.collider != null;
+
+        isJumped = !(isJumped && isGrounded);
     }
 }
