@@ -353,7 +353,9 @@ GameObject:
   - component: {fileID: 636170908}
   - component: {fileID: 636170911}
   - component: {fileID: 636170910}
+  - component: {fileID: 636170914}
   - component: {fileID: 636170912}
+  - component: {fileID: 636170913}
   m_Layer: 0
   m_Name: Cat
   m_TagString: Untagged
@@ -514,6 +516,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpHeight: 3
   speed: 5
+--- !u!95 &636170913
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 636170907}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 02ab5203d74c34748b452ab8c7017004, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &636170914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 636170907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5045ead2414b6304b977b9e038d2d4b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1504119938
 GameObject:
   m_ObjectHideFlags: 0

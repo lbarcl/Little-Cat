@@ -52,9 +52,9 @@ public class Movement : MonoBehaviour
     {
         float horizontal = actions.Movement.Horizontal.ReadValue<float>();
 
-        if (horizontal < 0 && transform.localScale.x != -1)
+        if (horizontal > 0 && transform.localScale.x == 1)
             transform.localScale = new Vector2(-1, 1);
-        else if (horizontal > 0)
+        else if (horizontal < 0)
             transform.localScale = Vector2.one;
 
         if (isGrounded)
