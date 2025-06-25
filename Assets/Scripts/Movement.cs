@@ -14,6 +14,7 @@ public class Movement : MonoBehaviour
     private bool isJumped;
 
     PlayerAction actions;
+    Animator animator;
     Rigidbody2D body;
     Vector3 subPos;
 
@@ -21,6 +22,7 @@ public class Movement : MonoBehaviour
     {
         actions = new PlayerAction();
         body = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
 
         actions.Movement.Jump.performed += Jump;
         subPos = new Vector3(0, transform.localScale.y, 0);
@@ -35,6 +37,7 @@ public class Movement : MonoBehaviour
         {
             body.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse); // Magic number
             isJumped = true;
+            animator.SetBool("Jump", true);
         }
     }
 
@@ -63,6 +66,8 @@ public class Movement : MonoBehaviour
             velocity.x = horizontal * speed;
             body.velocity = velocity;
         }
+
+        animator.SetFloat("Input x", Mathf.Abs(horizontal));
     }
 
     void LateUpdate()
@@ -71,5 +76,6 @@ public class Movement : MonoBehaviour
         isGrounded = hit.collider != null;
 
         isJumped = !(isJumped && isGrounded);
+        animator.SetBool("isGrounded", isGrounded);
     }
 }
