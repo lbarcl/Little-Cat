@@ -178,6 +178,76 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Interractions"",
+            ""id"": ""150d1a19-5a85-4bc3-af39-7f287faa3f01"",
+            ""actions"": [
+                {
+                    ""name"": ""Lick"",
+                    ""type"": ""Button"",
+                    ""id"": ""77e1aae4-5796-4db8-8d92-d9410be48c8f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Sleep"",
+                    ""type"": ""Button"",
+                    ""id"": ""0d696a51-529f-470b-bd51-e035b19018b7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""fdf997df-8933-45d9-911a-984b60c0c4da"",
+                    ""path"": ""<Keyboard>/l"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Lick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ab6a5b8e-6b90-4f59-98a3-245be50c2b88"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Lick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""deb31bf4-8948-4f69-ade6-b1bc34534e54"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sleep"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a4660348-eb1b-4478-bf16-0141e59e1ac8"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sleep"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -187,11 +257,16 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
         m_Movement_Horizontal = m_Movement.FindAction("Horizontal", throwIfNotFound: true);
         m_Movement_Jump = m_Movement.FindAction("Jump", throwIfNotFound: true);
         m_Movement_Run = m_Movement.FindAction("Run", throwIfNotFound: true);
+        // Interractions
+        m_Interractions = asset.FindActionMap("Interractions", throwIfNotFound: true);
+        m_Interractions_Lick = m_Interractions.FindAction("Lick", throwIfNotFound: true);
+        m_Interractions_Sleep = m_Interractions.FindAction("Sleep", throwIfNotFound: true);
     }
 
     ~@PlayerAction()
     {
         UnityEngine.Debug.Assert(!m_Movement.enabled, "This will cause a leak and performance issues, PlayerAction.Movement.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Interractions.enabled, "This will cause a leak and performance issues, PlayerAction.Interractions.Disable() has not been called.");
     }
 
     public void Dispose()
@@ -311,10 +386,69 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
         }
     }
     public MovementActions @Movement => new MovementActions(this);
+
+    // Interractions
+    private readonly InputActionMap m_Interractions;
+    private List<IInterractionsActions> m_InterractionsActionsCallbackInterfaces = new List<IInterractionsActions>();
+    private readonly InputAction m_Interractions_Lick;
+    private readonly InputAction m_Interractions_Sleep;
+    public struct InterractionsActions
+    {
+        private @PlayerAction m_Wrapper;
+        public InterractionsActions(@PlayerAction wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Lick => m_Wrapper.m_Interractions_Lick;
+        public InputAction @Sleep => m_Wrapper.m_Interractions_Sleep;
+        public InputActionMap Get() { return m_Wrapper.m_Interractions; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(InterractionsActions set) { return set.Get(); }
+        public void AddCallbacks(IInterractionsActions instance)
+        {
+            if (instance == null || m_Wrapper.m_InterractionsActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_InterractionsActionsCallbackInterfaces.Add(instance);
+            @Lick.started += instance.OnLick;
+            @Lick.performed += instance.OnLick;
+            @Lick.canceled += instance.OnLick;
+            @Sleep.started += instance.OnSleep;
+            @Sleep.performed += instance.OnSleep;
+            @Sleep.canceled += instance.OnSleep;
+        }
+
+        private void UnregisterCallbacks(IInterractionsActions instance)
+        {
+            @Lick.started -= instance.OnLick;
+            @Lick.performed -= instance.OnLick;
+            @Lick.canceled -= instance.OnLick;
+            @Sleep.started -= instance.OnSleep;
+            @Sleep.performed -= instance.OnSleep;
+            @Sleep.canceled -= instance.OnSleep;
+        }
+
+        public void RemoveCallbacks(IInterractionsActions instance)
+        {
+            if (m_Wrapper.m_InterractionsActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IInterractionsActions instance)
+        {
+            foreach (var item in m_Wrapper.m_InterractionsActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_InterractionsActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public InterractionsActions @Interractions => new InterractionsActions(this);
     public interface IMovementActions
     {
         void OnHorizontal(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
+    }
+    public interface IInterractionsActions
+    {
+        void OnLick(InputAction.CallbackContext context);
+        void OnSleep(InputAction.CallbackContext context);
     }
 }

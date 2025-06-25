@@ -1,13 +1,38 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Cat : MonoBehaviour
 {
-    BoxCollider2D boxCollider2D;
     SpriteRenderer spriteRenderer;
-    Animator animator;
+    BoxCollider2D boxCollider2D;
+    PlayerAction actions;
     Rigidbody2D body2D;
+    Animator animator;
+
+    void Awake()
+    {
+        actions = new PlayerAction();
+        actions.Interractions.Enable();
+
+        actions.Interractions.Lick.performed += Lick;
+        actions.Interractions.Sleep.performed += Sleep;
+    }
+
+    private void Sleep(InputAction.CallbackContext context)
+    {
+        bool isSleeping = GetComponent<Movement>().enabled;
+
+        animator.SetBool("Sleep", isSleeping);
+        GetComponent<Movement>().enabled = !isSleeping;
+    }
+
+    private void Lick(InputAction.CallbackContext context)
+    {
+        animator.SetTrigger("Lick");
+    }
 
     void Start()
     {
