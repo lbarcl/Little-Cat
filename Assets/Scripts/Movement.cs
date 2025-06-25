@@ -25,10 +25,10 @@ public class Movement : MonoBehaviour
         animator = GetComponent<Animator>();
 
         actions.Movement.Jump.performed += Jump;
-        subPos = new Vector3(0, transform.localScale.y, 0);
 
         float velocity = Mathf.Sqrt(jumpHeight * 2 * (Mathf.Abs(Physics2D.gravity.magnitude) * body.gravityScale));
         jumpForce = body.mass * velocity;
+        subPos = new Vector3(0, transform.localScale.y, 0);
     }
 
     private void Jump(InputAction.CallbackContext context)
@@ -54,6 +54,7 @@ public class Movement : MonoBehaviour
     void FixedUpdate()
     {
         float horizontal = actions.Movement.Horizontal.ReadValue<float>();
+        bool isRuning = actions.Movement.Run.inProgress;
 
         if (horizontal > 0 && transform.localScale.x == 1)
             transform.localScale = new Vector2(-1, 1);
@@ -63,10 +64,11 @@ public class Movement : MonoBehaviour
         if (isGrounded)
         {
             Vector2 velocity = body.velocity;
-            velocity.x = horizontal * speed;
+            velocity.x = horizontal * (isRuning ? speed * 1.5f : speed);
             body.velocity = velocity;
         }
 
+        animator.SetBool("Run", isRuning);
         animator.SetFloat("Input x", Mathf.Abs(horizontal));
     }
 
