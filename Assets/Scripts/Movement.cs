@@ -1,84 +1,115 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
 public class Movement : MonoBehaviour
 {
-    [Tooltip("The height that object will reach. Its used to callculate the force.")]
-    [SerializeField] private float jumpHeight;
-    [SerializeField] private float speed;
+    [Header("Movement Settings")]
+    [Tooltip("Speed when walking (Run = 1.5x)")]
+    [SerializeField] private float speed = 5f;
+    [Tooltip("Target jump height in Unity units")]
+    [SerializeField] private float jumpHeight = 2f;
+
+    [Header("Ground Detection")]
+    [Tooltip("Distance below collider to check for ground")]
+    [SerializeField] private float groundCheckDistance = 0.05f;
+
+    private PlayerAction actions;
+    private Animator animator;
+    private Rigidbody2D body;
     private float jumpForce;
     private bool isGrounded;
-    private bool isJumped;
+    private bool hasJumped;
 
-    PlayerAction actions;
-    Animator animator;
-    Rigidbody2D body;
-    Vector3 subPos;
-
-    void Awake()
+    private void Awake()
     {
         actions = new PlayerAction();
         body = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
-        actions.Movement.Jump.performed += Jump;
+        actions.Movement.Jump.performed += OnJump;
 
-        float velocity = Mathf.Sqrt(jumpHeight * 2 * (Mathf.Abs(Physics2D.gravity.magnitude) * body.gravityScale));
-        jumpForce = body.mass * velocity;
-        subPos = new Vector3(0, transform.localScale.y, 0);
+        jumpForce = CalculateJumpForce(jumpHeight);
     }
 
-    private void Jump(InputAction.CallbackContext context)
+    private float CalculateJumpForce(float targetHeight)
     {
-        if (isGrounded && !isJumped)
+        float gravity = Mathf.Abs(Physics2D.gravity.y * body.gravityScale);
+        float velocity = Mathf.Sqrt(2 * targetHeight * gravity);
+        return velocity * body.mass;
+    }
+
+    private void OnJump(InputAction.CallbackContext context)
+    {
+        if (isGrounded && !hasJumped)
         {
-            body.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse); // Magic number
-            isJumped = true;
+            body.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            hasJumped = true;
             animator.SetBool("Jump", true);
         }
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         actions.Movement.Enable();
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         actions.Movement.Disable();
         body.velocity = Vector2.zero;
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         float horizontal = actions.Movement.Horizontal.ReadValue<float>();
-        bool isRuning = actions.Movement.Run.inProgress;
+        bool isRunning = actions.Movement.Run.inProgress;
 
-        if (horizontal > 0 && transform.localScale.x == 1)
-            transform.localScale = new Vector2(-1, 1);
-        else if (horizontal < 0)
-            transform.localScale = Vector2.one;
+        HandleMovement(horizontal, isRunning);
+    }
+
+    private void HandleMovement(float horizontal, bool isRunning)
+    {
+        FlipSprite(horizontal);
 
         if (isGrounded)
         {
             Vector2 velocity = body.velocity;
-            velocity.x = horizontal * (isRuning ? speed * 1.5f : speed);
+            velocity.x = horizontal * (isRunning ? speed * 1.5f : speed);
             body.velocity = velocity;
         }
 
-        animator.SetBool("Run", isRuning);
+        animator.SetBool("Run", isRunning);
         animator.SetFloat("Input x", Mathf.Abs(horizontal));
     }
 
-    void LateUpdate()
+    private void FlipSprite(float horizontal)
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position - subPos, transform.up * -1, .05f);
+        if (horizontal > 0)
+            transform.localScale = new Vector3(-1, 1, 1);
+        else if (horizontal < 0)
+            transform.localScale = Vector3.one;
+    }
+
+    private void LateUpdate()
+    {
+        UpdateGroundedStatus();
+    }
+
+    private void UpdateGroundedStatus()
+    {
+        Vector2 origin = transform.position - new Vector3(0, transform.localScale.y / 2f);
+        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, groundCheckDistance);
+        bool wasGrounded = isGrounded;
         isGrounded = hit.collider != null;
 
-        isJumped = !(isJumped && isGrounded);
+        // Only reset jump when landing again
+        if (!wasGrounded && isGrounded)
+        {
+            hasJumped = false;
+            animator.SetBool("Jump", false);
+        }
+
         animator.SetBool("isGrounded", isGrounded);
     }
 }

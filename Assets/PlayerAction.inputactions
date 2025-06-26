@@ -178,6 +178,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Speek",
+                    "type": "Button",
+                    "id": "ba6fb76b-237f-4691-8a0e-b81f7ee2984f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -222,6 +231,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Sleep",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b4094d07-c75b-4dce-85dd-5a8c610e4f17",
+                    "path": "<Keyboard>/v",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Speek",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3871ec9a-4a74-4f5d-bf91-ac64ff27fdc3",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Speek",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -200,6 +200,15 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speek"",
+                    ""type"": ""Button"",
+                    ""id"": ""ba6fb76b-237f-4691-8a0e-b81f7ee2984f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -246,6 +255,28 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
                     ""action"": ""Sleep"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b4094d07-c75b-4dce-85dd-5a8c610e4f17"",
+                    ""path"": ""<Keyboard>/v"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speek"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3871ec9a-4a74-4f5d-bf91-ac64ff27fdc3"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speek"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -261,6 +292,7 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
         m_Interractions = asset.FindActionMap("Interractions", throwIfNotFound: true);
         m_Interractions_Lick = m_Interractions.FindAction("Lick", throwIfNotFound: true);
         m_Interractions_Sleep = m_Interractions.FindAction("Sleep", throwIfNotFound: true);
+        m_Interractions_Speek = m_Interractions.FindAction("Speek", throwIfNotFound: true);
     }
 
     ~@PlayerAction()
@@ -392,12 +424,14 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
     private List<IInterractionsActions> m_InterractionsActionsCallbackInterfaces = new List<IInterractionsActions>();
     private readonly InputAction m_Interractions_Lick;
     private readonly InputAction m_Interractions_Sleep;
+    private readonly InputAction m_Interractions_Speek;
     public struct InterractionsActions
     {
         private @PlayerAction m_Wrapper;
         public InterractionsActions(@PlayerAction wrapper) { m_Wrapper = wrapper; }
         public InputAction @Lick => m_Wrapper.m_Interractions_Lick;
         public InputAction @Sleep => m_Wrapper.m_Interractions_Sleep;
+        public InputAction @Speek => m_Wrapper.m_Interractions_Speek;
         public InputActionMap Get() { return m_Wrapper.m_Interractions; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -413,6 +447,9 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
             @Sleep.started += instance.OnSleep;
             @Sleep.performed += instance.OnSleep;
             @Sleep.canceled += instance.OnSleep;
+            @Speek.started += instance.OnSpeek;
+            @Speek.performed += instance.OnSpeek;
+            @Speek.canceled += instance.OnSpeek;
         }
 
         private void UnregisterCallbacks(IInterractionsActions instance)
@@ -423,6 +460,9 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
             @Sleep.started -= instance.OnSleep;
             @Sleep.performed -= instance.OnSleep;
             @Sleep.canceled -= instance.OnSleep;
+            @Speek.started -= instance.OnSpeek;
+            @Speek.performed -= instance.OnSpeek;
+            @Speek.canceled -= instance.OnSpeek;
         }
 
         public void RemoveCallbacks(IInterractionsActions instance)
@@ -450,5 +490,6 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
     {
         void OnLick(InputAction.CallbackContext context);
         void OnSleep(InputAction.CallbackContext context);
+        void OnSpeek(InputAction.CallbackContext context);
     }
 }
