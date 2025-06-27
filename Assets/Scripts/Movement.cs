@@ -72,12 +72,11 @@ public class Movement : MonoBehaviour
     {
         FlipSprite(horizontal);
 
-        if (isGrounded)
-        {
-            Vector2 velocity = body.velocity;
-            velocity.x = horizontal * (isRunning ? speed * 1.5f : speed);
-            body.velocity = velocity;
-        }
+
+        Vector2 velocity = body.velocity;
+        velocity.x = horizontal * (isRunning ? speed * 1.5f : speed);
+        body.velocity = velocity;
+
 
         animator.SetBool("Run", isRunning);
         animator.SetFloat("Input x", Mathf.Abs(horizontal));
