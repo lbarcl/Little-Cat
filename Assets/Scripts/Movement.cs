@@ -97,8 +97,7 @@ public class Movement : MonoBehaviour
 
     private void UpdateGroundedStatus()
     {
-        Vector2 origin = transform.position - new Vector3(0, transform.localScale.y / 2f);
-        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, groundCheckDistance);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance);
         bool wasGrounded = isGrounded;
         isGrounded = hit.collider != null;
 
