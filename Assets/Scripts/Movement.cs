@@ -74,7 +74,7 @@ public class Movement : MonoBehaviour
 
 
         Vector2 velocity = body.velocity;
-        velocity.x = horizontal * (isRunning ? speed * 1.5f : speed);
+        velocity.x = horizontal * ( isGrounded ? (isRunning ? speed * 1.5f : speed) : speed / 1.5f);
         body.velocity = velocity;
 
 
